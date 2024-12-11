@@ -115,11 +115,7 @@ for visited_location in guard.get_visited_locations():
 potential_obstacle_locations.remove(starting_location)
 
 def state_count(history: dict[tuple[int, int], set]) -> int:
-    count = 0
-    for location in history:
-        for orientation in history[location]:
-            count += 1
-    return count
+    return sum(len(location) for location in history)
 
 def obstacle_succeeds(board: list[str], starting_location: tuple[int, int], starting_tile: str, obstacle_location: tuple[int, int]) -> bool:
     if board[obstacle_location[0]][obstacle_location[1]] == "#":
