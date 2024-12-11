@@ -1,5 +1,3 @@
-import copy
-
 class Guard:
     facing_directions = "^>v<"
 
@@ -90,7 +88,7 @@ for i, line in enumerate(board):
 while guard.is_in_bounds():
     guard.advance(board)
 
-print(len(guard.get_visited_locations()))
+print(len(guard.get_visited_locations()) - 1)
 
 potential_obstacle_locations = set()
 facing_direction_history = guard.get_facing_direction_history()
