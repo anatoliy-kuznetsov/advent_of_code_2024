@@ -16,25 +16,6 @@ def apart_by_90_degrees(node1: tuple[tuple[int, int], str], node2: tuple[tuple[i
         case _:
             exit(f"Invalid orientation of {orientation1} for node {node1}")
 
-def reachable_by_step(start: tuple[tuple[int, int], str], end: tuple[tuple[int, int], str]) -> bool:
-    orientation1 = start[1]
-    orientation2 = end[1]
-    if orientation1 != orientation2:
-        return False
-    start_row, start_col = start[0]
-    end_row, end_col = end[0]
-    match orientation1:
-        case "N":
-            return end_row == start_row - 1 and end_col == start_col
-        case "E":
-            return end_col == start_col + 1 and end_row == start_row
-        case "S":
-            return end_row == start_row + 1 and end_col == start_col
-        case "W":
-            return end_col == start_col - 1 and end_row == start_row
-        case _:
-            exit(f"Invalid orientation of {orientation1} for node {start}")
-
 class Maze:
     turn_cost = 1000
     step_cost = 1
