@@ -1,3 +1,4 @@
+from operator import add
 from enum import StrEnum
 
 class GateOperation(StrEnum):
@@ -76,5 +77,44 @@ initial_pending_gates = pending_gates.copy()
 circuit = Circuit(fixed_wires, pending_gates)
 circuit.solve()
 result = circuit.get_result()
-
 print(f"Decimal number from z wires: {result}")
+
+def fixed_wires_for_ints(x: int, y: int) -> dict:
+    """
+    Returns fixed wires for 45-bit unsigned ints
+    """
+    WORD_LENGTH = 45
+    x_bin = bin(x)
+    x_bits = [bit for bit in x_bin[2:]]
+    if len(x_bits) < WORD_LENGTH:
+        x_bits = ["0"] * (WORD_LENGTH - len(x_bits)) + x_bits
+    y_bin = bin(y)
+    y_bits = [bit for bit in y_bin[2:]]
+    if len(y_bits) < WORD_LENGTH:
+        y_bits = ["0"] * (WORD_LENGTH - len(y_bits)) + y_bits
+    fixed_wires = {f"x{i:02d}": int(b) for i, b in enumerate(x_bits[::-1])}
+    fixed_wires.update({f"y{i:02d}": int(b) for i, b in enumerate(y_bits[::-1])})
+    return fixed_wires
+
+test_x = [2 ** i for i in range(44)]
+test_y = [2 ** i for i in range(44)]
+expected = list(map(add, test_x, test_y))
+test_count = len(expected)
+for i in range(test_count):
+    circuit = Circuit(
+        fixed_wires_for_ints(test_x[i], test_y[i]),
+        initial_pending_gates.copy()
+    )
+    circuit.solve()
+    result = circuit.get_result()
+    if result == expected[i]:
+        print(f"Passed case {i}: {test_x[i]} + {test_y[i]} = {expected[i]}")
+    else:
+        print(f"Failed case {i}: expected {test_x[i]} + {test_y[i]} = {expected[i]}, got {result}")
+
+"""
+Swaps:
+gates with outputs z36 and z37:
+wvd XOR rqh -> z36
+gng OR qgb -> z37
+"""
