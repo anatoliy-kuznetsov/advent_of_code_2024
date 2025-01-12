@@ -31,10 +31,5 @@ def fit(lock: list[int], key: list[int]) -> bool:
             return False
     return True
 
-# fit_pairs = [(lock, key) for lock in locks for key in keys if fit(lock, key)]
-fit_pairs = []
-for lock in locks:
-    for key in keys:
-        if fit(lock, key):
-            fit_pairs.append((lock, key))
+fit_pairs = [(lock, key) for lock in locks for key in keys if fit(lock, key)]
 print(f"{len(fit_pairs)} lock/key pairs fit without overlapping.")
