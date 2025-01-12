@@ -22,6 +22,41 @@ class Gate:
 
     def get_output(self) -> str:
         return self.output
+    
+class Circuit:
+    def __init__(self, fixed_wires: dict, pending_gates: list[Gate]):
+        self.fixed_wires = fixed_wires
+        self.pending_gates = pending_gates
+        self.is_solved = False
+    
+    def solve(self):
+        while len(self.pending_gates) > 0:
+            for gate in self.pending_gates:
+                input1, input2 = gate.get_inputs()
+                if input1 not in self.fixed_wires or input2 not in self.fixed_wires:
+                    continue
+                output = gate.get_output()
+                match gate.get_type():
+                    case GateOperation.AND:
+                        self.fixed_wires[output] = self.fixed_wires[input1] & self.fixed_wires[input2]
+                    case GateOperation.OR:
+                        self.fixed_wires[output] = self.fixed_wires[input1] | self.fixed_wires[input2]
+                    case GateOperation.XOR:
+                        self.fixed_wires[output] = self.fixed_wires[input1] ^ self.fixed_wires[input2]
+                self.pending_gates.remove(gate)
+        self.is_solved = True
+    
+    def get_result(self) -> int:
+        assert self.is_solved
+        z_wires = [wire for wire in self.fixed_wires.keys() if wire[0] == "z"]
+        z_wires.sort()
+        bits = [self.fixed_wires[wire] for wire in z_wires]
+        result = 0
+        place_value = 1
+        for bit in bits:
+            result += bit * place_value
+            place_value *= 2
+        return result
 
 with open("input.txt", "r") as f:
     lines = f.readlines()
@@ -36,27 +71,10 @@ for line in lines:
         tokens = line.split()
         pending_gates.append(Gate(tokens[0], tokens[2], GateOperation(tokens[1]), tokens[-1]))
 
-while len(pending_gates) > 0:
-    for gate in pending_gates:
-        input1, input2 = gate.get_inputs()
-        if input1 not in fixed_wires or input2 not in fixed_wires:
-            continue
-        output = gate.get_output()
-        match gate.get_type():
-            case GateOperation.AND:
-                fixed_wires[output] = fixed_wires[input1] & fixed_wires[input2]
-            case GateOperation.OR:
-                fixed_wires[output] = fixed_wires[input1] | fixed_wires[input2]
-            case GateOperation.XOR:
-                fixed_wires[output] = fixed_wires[input1] ^ fixed_wires[input2]
-        pending_gates.remove(gate)
+initial_fixed_wires = fixed_wires.copy()
+initial_pending_gates = pending_gates.copy()
+circuit = Circuit(fixed_wires, pending_gates)
+circuit.solve()
+result = circuit.get_result()
 
-z_wires = [wire for wire in fixed_wires.keys() if wire[0] == "z"]
-z_wires.sort()
-bits = [fixed_wires[wire] for wire in z_wires]
-result = 0
-place_value = 1
-for bit in bits:
-    result += bit * place_value
-    place_value *= 2
 print(f"Decimal number from z wires: {result}")
